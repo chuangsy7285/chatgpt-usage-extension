@@ -1,0 +1,11 @@
+const assert=require('node:assert/strict');
+const {parseUsage}=require('./parser.js');
+const zh='5 小時用量上限\n6 分鐘後重設\n剩餘 99%\n每週上限\n6 天 19 小時後重設\n剩餘 100%';
+const r=parseUsage(zh,0);assert.equal(r.rows.five.remaining,99);assert.equal(r.rows.five.resetAt,360000);assert.equal(r.rows.week.resetAt,163*3600000);
+const en=parseUsage('5-hour limit\nResets in 2h 30m\n80% remaining\nWeekly limit\nResets in 3d 2h\n95% left',0);assert.equal(en.rows.five.resetAt,150*60000);assert.equal(en.rows.week.remaining,95);
+assert.equal(parseUsage('I have 99% left'),null);
+assert.equal(parseUsage(zh.replace('99%','199%')),null);
+assert.equal(parseUsage(zh+'\n每週上限'),null);
+assert.equal(parseUsage(zh.split('每週上限')[0]),null);
+assert.equal(parseUsage(zh.replace('6 分鐘後重設','2026/10/30 重設'),0).rows.five.resetAt,null);
+console.log('7 parser scenarios passed');
